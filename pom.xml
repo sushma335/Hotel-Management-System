@@ -6,7 +6,7 @@
 	<groupId>org.training</groupId>
 	<artifactId>Hotel-Management</artifactId>
 	<version>1.0.0-RELEASE</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>Hotel-Management</name>
 	<description>Hotel management system using spring boot ,spring security, jpa with MySql </description>
@@ -32,11 +32,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
 		</dependency>
 
 		<dependency>
@@ -70,6 +65,54 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>docker</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>0.26.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<verbose>true</verbose>
+							<images>
+								<image>
+									<name>${project.artifactId}</name>
+									<build>
+										<from>java:8-jdk-alpine</from>
+										<entryPoint>
+											<exec>
+												<args>java</args>												
+												<args>-jar</args>
+												<args>/maven/${project.artifactId}-${project.version}.jar</args>
+											</exec>
+										</entryPoint>
+										<assembly>
+											<descriptorRef>artifact</descriptorRef>
+										</assembly>
+									</build>
+								</image>
+							</images>
+						</configuration>
+						<executions>
+							<execution>
+								<id>build</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
